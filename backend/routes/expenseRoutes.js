@@ -2,94 +2,72 @@ import express from 'express';
 import Expense from '../models/expenseModel.js';
 import { protect } from '../middleware/authMiddleware.js'; // Import the protect middleware
 
-const router = express.Router();
 
-// Get expenses for the logged-in user
-router.get('/', protect, async (req, res) => {
+
+const router = express.Router()
+
+// ADD AN EXPENSE
+router.post('/', async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user._id }); // Filter by user ID
-    res.json(expenses);
+    const newExpense = new Expense(req.body)
+    const expense = await newExpense.save()
+    res.status(201).json(expense)
   } catch (error) {
-    console.error('Error fetching expenses:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error(error)
+    res.status(500).json({ error: 'Failed to add expense' })
   }
-});
+})
 
-// Add an expense for the logged-in user
-router.post('/', protect, async (req, res) => {
+// GET ALL EXPENSES
+router.get('/', async (req, res) => {
   try {
-    console.log('Request Body:', req.body); // Log the request body
-    console.log('User ID:', req.user._id); // Log the user ID from the token
-
-    const newExpense = new Expense({
-      ...req.body,
-      user: req.user._id, // Associate the expense with the logged-in user
-    });
-    const expense = await newExpense.save();
-    res.status(201).json(expense);
+    const expenses = await Expense.find().sort({ createdAt: -1 })
+    res.status(200).json(expenses)
   } catch (error) {
-    console.error('Error adding transaction:', error); // Log the error
-    res.status(500).json({ error: 'Failed to add expense' });
+    console.error(error)
+    res.status(500).json({ error: 'Failed to retrieve expenses' })
   }
-});
+})
 
-// Update an expense
-router.put('/:id', protect, async (req, res) => {
+// GET FEW RECENT EXPENSES
+router.get('/recent', async (req, res) => {
   try {
-    const expenseUpdate = await Expense.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id }, // Ensure the expense belongs to the logged-in user
-      { $set: req.body },
-      { new: true }
-    );
-    if (!expenseUpdate) {
-      return res.status(404).json({ message: 'Expense not found' });
-    }
-    res.status(200).json(expenseUpdate);
+    const expenses = await Expense.find().limit(5).sort({ createdAt: -1 })
+    res.status(200).json(expenses)
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update expense' });
+    console.error(error)
+    res.status(500).json({ error: 'Failed to retrieve recent expenses' })
   }
-});
+})
 
-// Delete an expense
-router.delete('/:id', protect, async (req, res) => {
+// UPDATE AN EXPENSE
+router.put('/:id', async (req, res) => {
   try {
-    const expenseDelete = await Expense.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user._id, // Ensure the expense belongs to the logged-in user
-    });
-    if (!expenseDelete) {
-      return res.status(404).json({ message: 'Expense not found' });
-    }
-    res.status(200).json({ message: 'Transaction Deleted Successfully' });
+    const expenseUpdate = await Expense.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body
+      },
+      {
+        new: true
+      }
+    )
+    res.status(200).json(expenseUpdate)
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete expense' });
+    console.error(error)
+    res.status(500).json({ error: 'Failed to update expense' })
   }
-});
+})
 
-// Get all expenses (Admin or public route, if needed)
-router.get('/all', async (req, res) => {
+// DELETE AN EXPENSE
+router.delete('/:id', async (req, res) => {
   try {
-    const expenses = await Expense.find().sort({ createdAt: -1 });
-    res.status(200).json(expenses);
+    const expenseDelete = await Expense.findByIdAndDelete(req.params.id)
+    res.status(200).json({ message: 'Transaction Deleted Successfully' })
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve expenses' });
+    console.error(error)
+    res.status(500).json({ error: 'Failed to delete expense' })
   }
-});
+})
 
-// Get few recent expenses
-router.get('/recent', protect, async (req, res) => {
-  try {
-    const expenses = await Expense.find({ user: req.user._id }) // Filter by user ID
-      .limit(5)
-      .sort({ createdAt: -1 });
-    res.status(200).json(expenses);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve recent expenses' });
-  }
-});
-
-export default router;
+export default router

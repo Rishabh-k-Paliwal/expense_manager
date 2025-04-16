@@ -25,9 +25,16 @@ const InputForm = () => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
-
+  
     try {
-      await publicRequest.post('/expenses', formData);
+      const token = localStorage.getItem('token'); // Assuming the JWT token is stored in localStorage
+  
+      const headers = {
+        Authorization: `Bearer ${token}`, // Add the token to the headers
+      };
+  
+      await publicRequest.post('/expenses', formData, { headers }); // Send the token with the request
+  
       setSuccessMessage('Transaction added successfully!');
       setFormData({
         description: '',
@@ -42,6 +49,7 @@ const InputForm = () => {
       setErrorMessage('Failed to add transaction. Please try again.');
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">

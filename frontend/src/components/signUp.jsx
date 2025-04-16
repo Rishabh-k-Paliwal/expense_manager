@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -9,17 +9,24 @@ const SignUp = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
+
     try {
-      const { data } = await axios.post("http://localhost:5000/api/auth/signup", { name, email, password });
-      alert('Registration Successful! Please Sign In.');
-      navigate('/signin'); // Redirect to Sign-In page
+      const { data } = await axios.post("http://localhost:5000/api/auth/signup", {
+        name,
+        email,
+        password,
+      });
+      
+      localStorage.setItem('userInfo', JSON.stringify(data)); // Save user info in localStorage
+      alert('Sign-Up Successful');
+      navigate('/'); // Redirect to the home page
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred');
+      setError(err.response?.data?.message || 'Failed to sign up. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -27,8 +34,8 @@ const SignUp = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Sign Up</h1>
+      <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-100 mb-4 text-center">Sign Up</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -71,15 +78,9 @@ const SignUp = () => {
               loading ? 'bg-gray-600' : 'bg-blue-500 hover:bg-blue-600'
             }`}
           >
-            {loading ? 'Registering...' : 'Sign Up'}
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
-        <p className="text-gray-400 text-center mt-4">
-          Already have an account?{' '}
-          <Link to="/signin" className="text-blue-500 hover:underline">
-            Sign In
-          </Link>
-        </p>
       </div>
     </div>
   );

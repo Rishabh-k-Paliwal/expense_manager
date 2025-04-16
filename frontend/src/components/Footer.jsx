@@ -6,8 +6,8 @@ const Footer = () => {
       {/* Footer content */}
       <div className="container mx-auto text-center">
         <p className="text-2xl text-white font-extrabold">
-          <span className="text-[#FF5733]">Budget</span>
-          <span className="text-white"> Tracker</span>
+          <span className="text-[#FF5733]">Smart</span>
+          <span className="text-white"> Spend</span>
         </p>
         <p className="text-gray-300 mt-4 text-lg font-medium">
           &copy; 2025 Budget Tracker. All rights reserved.

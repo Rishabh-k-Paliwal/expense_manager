@@ -40,8 +40,8 @@ const App = () => {
                     {/* Header */}
                     <header className="text-center mb-8">
                       <h1 className="font-title font-extrabold text-5xl text-gray-100">
-                        <span className="text-[#FF5733]">Budget</span>
-                        <span className="text-gray-100"> Tracker</span>
+                        <span className="text-[#FF5733]">Smart</span>
+                        <span className="text-gray-100"> Spend</span>
                       </h1>
                       <p className="text-gray-200 mt-2 text-lg">
                         Simplify your financial management with ease.
